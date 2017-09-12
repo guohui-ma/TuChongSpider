@@ -6,6 +6,13 @@
 
 <br/>
 
+### 运行环境
+
+Win10<br>
+Python3.X
+<br/>
+
+
 ### 实现功能/思路
 
 - 爬取目标网站为[图虫网](https://tuchong.com/)
@@ -14,9 +21,7 @@
 
 ### 文件说明
 - tuchong_spider1.py 可以直接运行
-
 - tuchong_spider2.py 增加了遍历热门标签，自己设置代理
-
 
 
 ## 安装
@@ -81,4 +86,5 @@ python tuchong_spider1.py
 
 
 ### 注意事项
+- 程序已设置适当延迟，请合理使用
 - 程序仅作学习用途，请下载学习后24小时内删除
