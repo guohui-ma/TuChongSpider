@@ -66,13 +66,11 @@ def parse_img_page(url):
         return None
 
 
-def dowmload_imgs(img_urls, filename):
+def dowmload_imgs(img_urls, filename, current_tag_name):
     for i, img_url in enumerate(img_urls):
         img_name = re.search('(.*?\]).*', filename).group(1)
         # 为每张照片命名唯一名字（不采用md5，因为难看）
-        file_path = (
-            os.path.dirname(os.path.abspath(__file__)) + "/" + filename + "/" + img_name + '第' + str(
-                i + 1) + '张' + '.jpg')
+        file_path = (current_tag_name + filename + "/" + img_name + '第' + str(i + 1) + '张' + '.jpg')
         with open(file_path, 'wb') as f:
             f.write(requests.get(img_url).content)
             print('正在下载：', img_name, '第' + str(i + 1) + '张')
@@ -81,6 +79,9 @@ def dowmload_imgs(img_urls, filename):
 def main(page_num):
     # 标签内‘小清新’可自行按网站标签更换
     tag_name = '私房'
+    current_tag_path = os.path.dirname(os.path.abspath(__file__)) + "/" + tag_name + "/"
+    if os.path.exists(current_tag_path) is False:
+        os.mkdir(current_tag_path)
     start_url = 'https://tuchong.com/rest/tags/' + tag_name + '/posts?page=' + str(page_num) + '&count=20&order=weekly'
     tag_page_html = get_tag_page(start_url)
     print('正在下载，请耐心等待')
@@ -99,18 +100,18 @@ def main(page_num):
                 # 创建文件夹
                 if os.path.exists(filename) is False:
                     print('正在下载：', filename)
-                    os.mkdir(os.path.dirname(os.path.abspath(__file__)) + "/" + filename)
-                    dowmload_imgs(img_urls, filename)
+                    os.mkdir(current_tag_path + filename)
+                    dowmload_imgs(img_urls, filename, current_tag_path)
                 else:
                     # 如果文件夹存在：判断文件夹内照片数量如果小于照片url数量，则补充下载，反之跳过该合集
-                    if int(len([x for x in os.listdir(os.path.dirname(__file__) + "/" + filename)])) < int(
+                    if int(len([x for x in os.listdir(current_tag_path + filename)])) < int(
                             img_page_datil['image_count']) * 8 // 10:
-                        dowmload_imgs(img_urls, filename)
+                        dowmload_imgs(img_urls, filename, current_tag_path)
                     else:
                         print(filename, '已经存在')
 
 
 if __name__ == '__main__':
     groups = [num for num in range(1, 20)]
-    pool = Pool(3)
+    pool = Pool(2)
     pool.map(main, groups)
