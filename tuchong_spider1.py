@@ -71,7 +71,7 @@ def dowmload_imgs(img_urls, filename):
         img_name = re.search('(.*?\]).*', filename).group(1)
         # 为每张照片命名唯一名字（不采用md5，因为难看）
         file_path = (
-            os.path.dirname(os.path.abspath(__file__)) + '\\' + filename + '\\' + img_name + '第' + str(
+            os.path.dirname(os.path.abspath(__file__)) + "/" + filename + "/" + img_name + '第' + str(
                 i + 1) + '张' + '.jpg')
         with open(file_path, 'wb') as f:
             f.write(requests.get(img_url).content)
@@ -80,7 +80,8 @@ def dowmload_imgs(img_urls, filename):
 
 def main(page_num):
     # 标签内‘小清新’可自行按网站标签更换
-    start_url = 'https://tuchong.com/rest/tags/小清新/posts?page=' + str(page_num) + '&count=20&order=weekly'
+    tag_name = '私房'
+    start_url = 'https://tuchong.com/rest/tags/' + tag_name + '/posts?page=' + str(page_num) + '&count=20&order=weekly'
     tag_page_html = get_tag_page(start_url)
     print('正在下载，请耐心等待')
     for img_page_datil in tag_page_html['postList']:
@@ -98,11 +99,11 @@ def main(page_num):
                 # 创建文件夹
                 if os.path.exists(filename) is False:
                     print('正在下载：', filename)
-                    os.mkdir(os.path.dirname(os.path.abspath(__file__)) + '\\' + filename)
+                    os.mkdir(os.path.dirname(os.path.abspath(__file__)) + "/" + filename)
                     dowmload_imgs(img_urls, filename)
                 else:
                     # 如果文件夹存在：判断文件夹内照片数量如果小于照片url数量，则补充下载，反之跳过该合集
-                    if int(len([x for x in os.listdir(os.path.dirname(__file__) + '/' + filename)])) < int(
+                    if int(len([x for x in os.listdir(os.path.dirname(__file__) + "/" + filename)])) < int(
                             img_page_datil['image_count']) * 8 // 10:
                         dowmload_imgs(img_urls, filename)
                     else:
