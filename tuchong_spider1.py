@@ -4,15 +4,15 @@ import re
 import json
 import time
 import random
+from pathlib import Path
 import requests
 import itertools
 from bs4 import BeautifulSoup
 from multiprocessing import Pool
 from requests.exceptions import ConnectionError
 
-
-# 随机更换user-agents
 def choice_headers():
+    # 随机更换user-agents
     agents = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.87 Safari/537.36',
         'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
@@ -77,12 +77,15 @@ def dowmload_imgs(img_urls, filename, current_tag_name):
 
 
 def main(page_num):
-    # 标签内‘小清新’可自行按网站标签更换
+    # 根据标签类别进行下载
     tag_name = '私房'
-    current_tag_path = os.path.dirname(os.path.abspath(__file__)) + "/" + tag_name + "/"
-    if os.path.exists(current_tag_path) is False:
-        os.mkdir(current_tag_path)
     start_url = 'https://tuchong.com/rest/tags/' + tag_name + '/posts?page=' + str(page_num) + '&count=20&order=weekly'
+    # 因作品存在多个不同标签，故不使用标签命名文件夹，会导致大量下载重复
+    # current_tag_path = os.path.dirname(os.path.abspath(__file__)) + "/" + tag_name + "/"
+    # 使用python3的路径处理方式
+    current_path = str(Path(__file__).parent) + "/" + "图虫网摄影作品" + "/"
+    if os.path.exists(current_path) is False:
+        os.mkdir(current_path)
     tag_page_html = get_tag_page(start_url)
     print('正在下载，请耐心等待')
     for img_page_datil in tag_page_html['postList']:
@@ -100,13 +103,13 @@ def main(page_num):
                 # 创建文件夹
                 if os.path.exists(filename) is False:
                     print('正在下载：', filename)
-                    os.mkdir(current_tag_path + filename)
-                    dowmload_imgs(img_urls, filename, current_tag_path)
+                    os.mkdir(current_path + filename)
+                    dowmload_imgs(img_urls, filename, current_path)
                 else:
                     # 如果文件夹存在：判断文件夹内照片数量如果小于照片url数量，则补充下载，反之跳过该合集
-                    if int(len([x for x in os.listdir(current_tag_path + filename)])) < int(
+                    if int(len([x for x in os.listdir(current_path + filename)])) < int(
                             img_page_datil['image_count']) * 8 // 10:
-                        dowmload_imgs(img_urls, filename, current_tag_path)
+                        dowmload_imgs(img_urls, filename, current_path)
                     else:
                         print(filename, '已经存在')
 
